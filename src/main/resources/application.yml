@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost:5433/cryptocurrency"
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+bot:
+  token: 6544434431:AAEMZbVVvUOVxCTt4e68ct_2_-5VXhIzii4
+  username: DigiCodeTest_Bot
