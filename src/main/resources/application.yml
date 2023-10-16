@@ -10,3 +10,5 @@ spring:
 bot:
   token: 6544434431:AAEMZbVVvUOVxCTt4e68ct_2_-5VXhIzii4
   username: DigiCodeTest_Bot
+  time: 15
+  percent: 10

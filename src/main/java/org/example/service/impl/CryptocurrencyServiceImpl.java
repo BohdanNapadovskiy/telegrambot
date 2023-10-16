@@ -7,6 +7,7 @@ import org.example.domain.UserRequest;
 import org.example.dto.CryptocurrencyDTO;
 import org.example.repository.CryptocurrencyRepository;
 import org.example.service.CryptocurrencyService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,22 +24,40 @@ import java.util.stream.Collectors;
 public class CryptocurrencyServiceImpl implements CryptocurrencyService {
     private final CryptocurrencyRepository repository;
     private final MessageServiceImpl messageServiceImpl;
-    private final double PERCENT = 15;
+
+    @Value("${bot.percent}")
+    private double PERCENT;
 
     @Transactional
     @Override
-    public void updateCryptocurrencyFromHttpRequest(UserRequest request) {
+    public void validateChangesForCryptocurrency(UserRequest request) {
         List<CryptocurrencyDTO> httpResponse = getResponseFromHTTP();
         Set<String> names = httpResponse.stream().map(CryptocurrencyDTO::getSymbol).collect(Collectors.toSet());
         List<Cryptocurrency> cryptocurrencies = repository.findAllByNameIn(names);
         httpResponse.stream().filter(dto -> priceChanged(cryptocurrencies, dto))
             .findAny()
-            .ifPresent(dto-> {
-                CryptoMessage message = CryptoMessage.prepareMessage(request,"Price for "+dto.getSymbol()+ " was changed to "+dto.getPrice());
-                messageServiceImpl.sendMessage(message);
-            });
-        repository.saveAll(httpResponse.stream().map(Cryptocurrency::new).collect(Collectors.toList()));
+            .ifPresent(dto-> sendMessageToUser(request, dto));
+        updateCryptocurrencyInDb(httpResponse, cryptocurrencies);
+    }
 
+    private void updateCryptocurrencyInDb(List<CryptocurrencyDTO> httpResponse, List<Cryptocurrency> cryptocurrencies) {
+        List<Cryptocurrency> updateList = httpResponse.stream()
+                .map(dto-> findElementByName(dto, cryptocurrencies))
+                .collect(Collectors.toList());
+        repository.saveAll(updateList);
+    }
+
+
+    private Cryptocurrency findElementByName(CryptocurrencyDTO dto, List<Cryptocurrency> cryptocurrencies) {
+        return cryptocurrencies.stream()
+                .filter(c-> c.getName().equalsIgnoreCase(dto.getSymbol())).findAny()
+                .orElse(new Cryptocurrency(dto));
+
+    }
+
+    private void sendMessageToUser(UserRequest request, CryptocurrencyDTO dto) {
+        CryptoMessage message = CryptoMessage.prepareMessage(request,"Price for "+dto.getSymbol()+ " was changed to "+dto.getPrice());
+        messageServiceImpl.sendMessage(message);
     }
 
     private boolean priceChanged(List<Cryptocurrency> cryptocurrencies, CryptocurrencyDTO dto) {

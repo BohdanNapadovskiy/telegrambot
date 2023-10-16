@@ -17,6 +17,6 @@ public class BotMessageService extends DefaultAbsSender {
 
     @Override
     public String getBotToken() {
-        return "6544434431:AAEMZbVVvUOVxCTt4e68ct_2_-5VXhIzii4";
+        return this.botToken;
     }
 }

@@ -4,7 +4,7 @@ import org.example.domain.UserRequest;
 
 public interface CryptocurrencyService {
 
-    void updateCryptocurrencyFromHttpRequest(UserRequest request);
+    void validateChangesForCryptocurrency(UserRequest request);
 
 
 }

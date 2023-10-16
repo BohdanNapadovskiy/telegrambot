@@ -6,13 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.dto.CryptocurrencyDTO;
 
+import java.io.Serializable;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "cryptocurrency")
 @Getter
-public class Cryptocurrency {
+public class Cryptocurrency implements Serializable {
 
 
     @Id
